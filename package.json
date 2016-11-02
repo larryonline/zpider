@@ -1,0 +1,21 @@
+{
+  "name": "zpider",
+  "version": "0.0.1",
+  "description": "zpider for tv-show",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "zpider"
+  ],
+  "author": "larry.zzn@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "commander": "^2.9.0",
+    "cookiejar": "^2.1.0",
+    "request": "^2.76.0",
+    "routes": "^2.1.0"
+  }
+}

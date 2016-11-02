@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+var program = require('commander');
+var Zpider = require('../main.js');
+
+program
+	.version('0.0.1')
+	.option('-q --quite', 'keep slience.')
+	.parse(process.argv);
+
+
+var url = program.args[0];
+
+var zpider = Zpider({logLevel:'none'});
+
+var isShowed$ = false;
+
+zpider.route('www.baidu.com', '*', function($, document){
+	
+	console.log("on page:", document.url);
+
+	$('a').spider();
+});
+
+zpider.fetch(url)
