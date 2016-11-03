@@ -1,10 +1,10 @@
 {
   "name": "zpider",
   "version": "0.0.1",
-  "description": "zpider for tv-show",
+  "description": "spider, made by <zhennan zhang>, inspired by https://www.npmjs.com/package/spider",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "demo": "bin/zpider http://www.baidu.com"
   },
   "keywords": [
     "zpider"

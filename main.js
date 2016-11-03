@@ -36,6 +36,8 @@ const LOG_LEVELS = {
 	'none': 1000
 };
 
+const PROGRESS_EVENT = 'progress';
+
 /**
  * constructor
  */ 
@@ -45,7 +47,7 @@ var Zpider = function(options){
 	options = typeof options === 'object'? options : {};
 
 	this.userAgent = options.userAgent || agent.FirefoxUserAgent;
-	this.contentType = options.contentType || CONTENT_TYPE;
+	this.contentType = CONTENT_TYPE;
 	this.routes = {};
 	this.urls = [];
 	this.cache = options.cache || cache.NO_CACHE();
@@ -59,6 +61,9 @@ var Zpider = function(options){
 			console.log('[%s] %s', LOG_LEVELS[level], text);
 		}
 	});
+
+	this.taskTotal = 0;
+	this.taskFinished = 0;
 }
 
 util.inherits(Zpider, EventEmitter);
@@ -129,6 +134,10 @@ Zpider.prototype.fetch = function(url, referer) {
 	}
 
 	self.emit(LOG_EVENT, 'debug', 'Request ' + url);
+
+	// update progress
+	self.taskTotal += 1;
+
 	request.get({
 		url: url,
 		headers: headers,
@@ -137,11 +146,19 @@ Zpider.prototype.fetch = function(url, referer) {
 		self.emit(LOG_EVENT, 'debug', 'Response received [' + url + ']');
 		self.emit('data', response, url);
 
-		if (response.statusCode !== 200) {
-			self.emit(LOG_EVENT, 'warn', 'Response got StatusCode[' + response.statusCode + '] from ' + url);
+		self.taskFinished += 1;
+
+		if (error) {
+			self.emit(LOG_EVENT, 'error', 'Response got Error[' + error + '] from ' + url);	
+			self.emit(PROGRESS_EVENT, url, self.taskFinished, self.taskTotal);
+			return;
+		}else if (response.statusCode !== 200) {
+			self.emit(LOG_EVENT, 'warn', 'Response got StatusCode[' + response.statusCode + '] from ' + url);	
+			self.emit(PROGRESS_EVENT, url, self.taskFinished, self.taskTotal);
 			return;
 		} else if (!response.headers['content-type'] || response.headers['content-type'].indexOf(self.contentType) === -1) {
 			self.emit(LOG_EVENT, 'error', 'Response expect [' + self.contentType + '] but got [' + response.headers['content-type'] + ']');
+			self.emit(PROGRESS_EVENT, url, self.taskFinished, self.taskTotal);
 			return;
 		}
 
@@ -152,6 +169,7 @@ Zpider.prototype.fetch = function(url, referer) {
 		}
 
 		self.__responseHandler(url, referer, {headers: response.headers, body: body});
+		self.emit(PROGRESS_EVENT, url, self.taskFinished, self.taskTotal);
 	})
 
 }
